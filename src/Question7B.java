@@ -1,62 +1,77 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Question7B {
-    private static final int NUM_THREADS = 10;
-    private static final int MAX_PAGES = 1000;
+    // Set up the initial queue with the starting URLs
+    private static BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+    static {
+        queue.add("https://example.com");
+    }
 
-    private final Set<URL> seenUrls = new HashSet<>();
-    private final List<URL> urlsToCrawl = new ArrayList<>();
-    private final BlockingQueue<URL> urlQueue = new LinkedBlockingQueue<>();
+    // Set up the maximum number of threads to be used
+    private static final int MAX_THREADS = 10;
 
-    public void crawl(URL startUrl) {
-        urlsToCrawl.add(startUrl);
-        urlQueue.add(startUrl);
+    // Set up a HashSet to keep track of visited URLs
+    private static HashSet<String> visited = new HashSet<>();
 
-        ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
+    public static void main(String[] args) throws InterruptedException {
+        // Create the threads and start them
+        Thread[] threads = new Thread[MAX_THREADS];
+        for (int i = 0; i < MAX_THREADS; i++) {
+            threads[i] = new Thread(new Crawler());
+            threads[i].start();
+        }
 
-        try {
-            while (!urlQueue.isEmpty() && seenUrls.size() < MAX_PAGES) {
-                URL url = urlQueue.take();
-                seenUrls.add(url);
-                executor.execute(new CrawlTask(url));
-            }
-        } catch (InterruptedException e) {
-            // Thread interrupted, stop crawling
-        } finally {
-            executor.shutdown();
+        // Wait for all tasks to be completed
+        for (Thread thread : threads) {
+            thread.join();
         }
     }
 
-    private class CrawlTask implements Runnable {
-        private final URL url;
-
-        public CrawlTask(URL url) {
-            this.url = url;
-        }
-
-        @Override
+    private static class Crawler implements Runnable {
         public void run() {
-            // Download page and extract links
-            List<URL> links = downloadPage(url);
-            for (URL link : links) {
-                if (!seenUrls.contains(link) && urlsToCrawl.size() < MAX_PAGES) {
-                    urlsToCrawl.add(link);
-                    urlQueue.add(link);
-                }
+            while (true) {
+                try {
+                    // Get the next URL from the queue
+                    String url = queue.take();
+
+                    // Check if the URL has already been visited
+                    if (visited.contains(url)) {
+                        continue;
+                    }
+
+                    // Make a request to the URL
+                    URL urlObj = new URL(url);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(urlObj.openStream()));
+
+                    // Extract links from the response
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (line.contains("href=")) {
+                            int startIndex = line.indexOf("href=") + 6;
+                            int endIndex = line.indexOf("\"", startIndex);
+                            String link = line.substring(startIndex, endIndex);
+
+                            // Convert relative URLs to absolute URLs
+                            if (!link.startsWith("http")) {
+                                link = urlObj.getProtocol() + "://" + urlObj.getHost() + link;
+                            }
+
+                            // Add the link to the queue if it hasn't been visited yet
+                            if (!visited.contains(link)) {
+                                queue.put(link);
+                            }
+                        }
+                    }
+
+                    // Mark the URL as visited
+                    visited.add(url);
+                } catch (Exception ignore) {}
             }
         }
-    }
-
-    private List<URL> downloadPage(URL url) {
-        // Download and parse page
-        return new ArrayList<>();
     }
 }
