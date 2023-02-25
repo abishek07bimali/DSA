@@ -2,6 +2,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
+
+//Implement Huffman encoding and decoding.
+
+
 //defining a class that creates nodes of the tree
 class Node
 {

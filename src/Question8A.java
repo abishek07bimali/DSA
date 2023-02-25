@@ -1,5 +1,13 @@
 import java.util.Stack;
 
+//Given 2D matrix of 1 and 0s. Using stack, find maximum area of square made by 0s.
+//        INPUT: 1 0 1 0 0
+//        0 1 1 1 1
+//        0 0 0 0 1
+//        0 0 0 1 1
+//        0 1 0 1 1
+//        OUTPUT: 4
+
 public class Question8A {
 
     public static int findMaximumSquareArea(int[][] matrix) {

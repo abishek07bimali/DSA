@@ -1,4 +1,6 @@
 
+//Given a linked list containing an integer value, return the number of steps required to sort an array in
+//        ascending order by eliminating elements at each step
 class Question4B {
     static class ListNode {
         int val;
@@ -34,8 +36,7 @@ class Question4B {
         head.next.next.next = new ListNode(0);
         head.next.next.next.next = new ListNode(8);
         head.next.next.next.next.next = new ListNode(3);
-        head.next.next.next.next.next.next = new ListNode(8);
-        head.next.next.next.next.next.next.next = new ListNode(7);
+
 
         System.out.println("Number of steps required to sort the linked list: " + obj.sortList(head));
     }
