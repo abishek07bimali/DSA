@@ -6,65 +6,83 @@ import java.util.TreeMap;
 //Design and Implement LFU caching
 class Question4A {
 
-   private Map<Integer, Node> valueMap = new HashMap<>();
-   private Map<Integer, Integer> countMap = new HashMap<>();
-   private TreeMap<Integer, DoubleLinkedList> frequencyMap = new TreeMap<>();
-   private final int size;
+    // Map to store the key-value pairs
+    private Map<Integer, Node> valueMap = new HashMap<>();
 
-   public Question4A(int n) {
-       size = n;
-   }
+    // Map to store the count (frequency) of each key
+    private Map<Integer, Integer> countMap = new HashMap<>();
 
-   public int get(int key) {
-       if (!valueMap.containsKey(key) || size == 0) {
-           return -1;
-       }
+    // Map to store the linked lists of keys with the same count (frequency)
+    private TreeMap<Integer, DoubleLinkedList> frequencyMap = new TreeMap<>();
 
-       // Remove element from current frequency list and move it to the next one in O(1) time
-       Node nodeTodelete = valueMap.get(key);
-       Node node = new Node(key, nodeTodelete.value());
-       int frequency = countMap.get(key);
-       frequencyMap.get(frequency).remove(nodeTodelete);
-       removeIfListEmpty(frequency);
-       valueMap.remove(key);
-       countMap.remove(key);
-       valueMap.put(key, node);
-       countMap.put(key, frequency + 1);
-       frequencyMap.computeIfAbsent(frequency + 1, k -> new DoubleLinkedList()).add(node);
-       return valueMap.get(key).value;
-   }
+    // The maximum capacity of the cache
+    private final int size;
 
-   public void put(int key, int value) {
-       if (!valueMap.containsKey(key) && size > 0){
+    // Constructor to set the maximum capacity of the cache
+    public Question4A(int n) {
+        size = n;
+    }
 
-           Node node = new Node(key, value);
+    // Get the value for the given key from the cache
+    public int get(int key) {
+        // If the key is not in the cache or the cache has no capacity, return -1
+        if (!valueMap.containsKey(key) || size == 0) {
+            return -1;
+        }
 
-           if (valueMap.size() == size) {
-               // remove the first node(LRU) from the list the of smallest frequency(LFU)
-               int lowestCount = frequencyMap.firstKey();
-               Node nodeTodelete = frequencyMap.get(lowestCount).head();
-               frequencyMap.get(lowestCount).remove(nodeTodelete);
-               removeIfListEmpty(lowestCount);
+        // Remove the key from its current frequency list and move it to the next one in O(1) time
+        Node nodeToDelete = valueMap.get(key);
+        Node node = new Node(key, nodeToDelete.value());
+        int frequency = countMap.get(key);
+        frequencyMap.get(frequency).remove(nodeToDelete);
+        removeIfListEmpty(frequency);
+        valueMap.remove(key);
+        countMap.remove(key);
+        valueMap.put(key, node);
+        countMap.put(key, frequency + 1);
+        frequencyMap.computeIfAbsent(frequency + 1, k -> new DoubleLinkedList()).add(node);
+        return valueMap.get(key).value;
+    }
 
-               int keyToDelete = nodeTodelete.key();
-               valueMap.remove(keyToDelete);
-               countMap.remove(keyToDelete);
-           }
-           frequencyMap.computeIfAbsent(1, k -> new DoubleLinkedList()).add(node);
-           valueMap.put(key, node);
-           countMap.put(key, 1);
+    // Add or update the value for the given key in the cache
+    public void put(int key, int value) {
+        // If the key is not in the cache and the cache has capacity
+        if (!valueMap.containsKey(key) && size > 0) {
+            // Create a new node for the key-value pair
+            Node node = new Node(key, value);
 
-       }
-       else if(size > 0){
-           Node node = new Node(key, value);
-           Node nodeTodelete = valueMap.get(key);
-           int frequency = countMap.get(key);
-           frequencyMap.get(frequency).remove(nodeTodelete);
-           removeIfListEmpty(frequency);
-           valueMap.remove(key);
-           countMap.remove(key);
-           valueMap.put(key, node);
-           countMap.put(key, frequency + 1);
+            // If the cache is full, remove the LRU node from the smallest frequency list
+            if (valueMap.size() == size) {
+                int lowestCount = frequencyMap.firstKey();
+                Node nodeToDelete = frequencyMap.get(lowestCount).head();
+                frequencyMap.get(lowestCount).remove(nodeToDelete);
+                removeIfListEmpty(lowestCount);
+                int keyToDelete = nodeToDelete.key();
+                valueMap.remove(keyToDelete);
+                countMap.remove(keyToDelete);
+            }
+
+            // Add the node to the frequency list for frequency 1 and update the maps
+            frequencyMap.computeIfAbsent(1, k -> new DoubleLinkedList()).add(node);
+            valueMap.put(key, node);
+            countMap.put(key, 1);
+        }
+        // If the key is already in the cache
+        else if (size > 0) {
+            // Create a new node for the key-value pair
+            Node node = new Node(key, value);
+
+            // Remove the key from its current frequency list and move it to the next one in O(1) time
+            Node nodeToDelete = valueMap.get(key);
+            int frequency = countMap.get(key);
+            frequencyMap.get(frequency).remove(nodeToDelete);
+            removeIfListEmpty(frequency);
+            valueMap.remove(key);
+            countMap.remove(key);
+
+            // Add the node to the frequency list for the next frequency and update the maps
+            valueMap.put(key, node);
+            countMap.put(key, frequency + 1);
            frequencyMap.computeIfAbsent(frequency + 1, k -> new DoubleLinkedList()).add(node);
 
 

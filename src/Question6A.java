@@ -42,8 +42,7 @@ class Node
         {
             return;
         }
-        //count the frequency of appearance of each character and store it in a map
-        //creating an instance of the Map
+        //count the frequency of appearance of each character and store it in a map creating an instance of the Map
         Map<Character, Integer> freq = new HashMap<>();
         //loop iterates over the string and converts the text into character array
         for (char c: text.toCharArray())
@@ -51,8 +50,7 @@ class Node
             //storing character and their frequency into Map by invoking the put() method
             freq.put(c, freq.getOrDefault(c, 0) + 1);
         }
-        //create a priority queue that stores current nodes of the Huffman tree.
-        //here a point to note that the highest priority means the lowest frequency
+        //create a priority queue that stores current nodes of the Huffman tree. here a point to note that the highest priority means the lowest frequency
         PriorityQueue<Node> pq = new PriorityQueue<>(Comparator.comparingInt(l -> l.freq));
         //loop iterate over the Map and returns a Set view of the mappings contained in this Map
         for (var entry: freq.entrySet())
@@ -66,10 +64,12 @@ class Node
             //removing the nodes having the highest priority (the lowest frequency) from the queue
             Node left = pq.poll();
             Node right = pq.poll();
-            //create a new internal node with these two nodes as children and with a frequency equal to the sum of both nodes' frequencies. Add the new node to the priority queue.
+            //create a new internal node with these two nodes as children and with a frequency equal to the sum of both nodes'
+            // frequencies. Add the new node to the priority queue.
             //sum up the frequency of the nodes (left and right) that we have deleted
             int sum = left.freq + right.freq;
-            //adding a new internal node (deleted nodes i.e. right and left) to the queue with a frequency that is equal to the sum of both nodes
+            //adding a new internal node (deleted nodes i.e. right and left) to the queue with a frequency that is equal to the
+            // sum of both nodes
             pq.add(new Node(null, sum, left, right));
         }
         //root stores pointer to the root of Huffman Tree
@@ -150,11 +150,9 @@ class Node
         //returns true if both conditions return ture
         return root.left == null && root.right == null;
     }
-    //driver code
     public static void main(String args[])
     {
-        String text = "javatpoint";
-        //function calling
+        String text = "Programming for developers";
         createHuffmanTree(text);
     }
 }

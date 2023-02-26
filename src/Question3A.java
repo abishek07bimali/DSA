@@ -16,20 +16,25 @@ import java.util.Arrays;
 //        {5,4} {2,11} result into minimum product difference
 //
 public class Question3A {
+    // A static method that takes an integer array as input and returns the minimum difference between two products of two subarrays
     public static int minProductDifference(int[] arr) {
         Arrays.sort(arr); // sort the input array
         int n = arr.length;
         int minDiff = Integer.MAX_VALUE;
         // calculate the difference between two subarrays with the minimum product difference
         for (int i = 0; i < n / 2; i++) {
+            // Calculate the products of the two subarrays and their difference
             int product1 = arr[i] * arr[n - i - 1];
             int product2 = arr[n / 2 + i] * arr[n - n / 2 - i - 1];
             int diff = Math.abs(product1 - product2);
+            // update the minimum difference
             minDiff = Math.min(minDiff, diff);
         }
+        // return the minimum difference between two products of two subarrays
         return minDiff;
     }
 
+    // A main method to test the functionality of the minProductDifference method
     public static void main(String[] args) {
         int[] arr = {5, 2, 4, 11};
         System.out.println(minProductDifference(arr)); // outputs 2

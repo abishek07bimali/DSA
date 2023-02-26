@@ -1,3 +1,4 @@
+// Import necessary packages
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -5,11 +6,12 @@ import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+// Define the class
 public class Question7B {
     // Set up the initial queue with the starting URLs
     private static BlockingQueue<String> queue = new LinkedBlockingQueue<>();
     static {
-        queue.add("https://example.com");
+        queue.add("https://github.com/abishek07bimali/DSA"); // Starting URL
     }
 
     // Set up the maximum number of threads to be used
@@ -18,6 +20,7 @@ public class Question7B {
     // Set up a HashSet to keep track of visited URLs
     private static HashSet<String> visited = new HashSet<>();
 
+    // Define the main method
     public static void main(String[] args) throws InterruptedException {
         // Create the threads and start them
         Thread[] threads = new Thread[MAX_THREADS];
@@ -32,6 +35,7 @@ public class Question7B {
         }
     }
 
+    // Define the Crawler class that implements the Runnable interface
     private static class Crawler implements Runnable {
         public void run() {
             while (true) {
@@ -70,7 +74,9 @@ public class Question7B {
 
                     // Mark the URL as visited
                     visited.add(url);
-                } catch (Exception ignore) {}
+                } catch (Exception ignore) {
+                    // Ignore any exceptions
+                }
             }
         }
     }

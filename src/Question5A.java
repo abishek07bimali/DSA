@@ -11,39 +11,72 @@ import java.util.TreeMap;
 //        Input: height={{1,4,10},{2,5,15},{5,8,12},{9,11,1},{11,13,15}}
 //        Output: {{1,10},{2,15},{5,12},{8,0},{9,1},{11,15},{13,0}}
 
+import java.util.*;
 
 public class Question5A {
+    public List<List<Integer>> getSkyline(int[][] buildings) {
+        List<List<Integer>> res=new ArrayList<>();
 
-    public int[][] getKeyCoordinates(int[][] height) {
-        // Store the start and end points of each rectangle in a TreeMap
-        TreeMap<Integer, Integer> map = new TreeMap<>();
-        for (int[] rect : height) {
-            map.put(rect[0], Math.max(map.getOrDefault(rect[0], 0), rect[2]));
-            map.put(rect[1], 0);
-        }
+        List<int[]> heights=new ArrayList<>();
 
-        // Keep track of the current height while iterating through the map
-        int currHeight = 0;
-        int[][] res = new int[map.size()][2];
-        int i = 0;
-        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
-            int x = entry.getKey();
-            int h = entry.getValue();
-            if (h != currHeight) {
-                res[i][0] = x;
-                res[i][1] = currHeight = h;
-                i++;
+        transformBuilding(buildings,heights);
+
+        //if heights of 2 points are same then place the point with smaller height first else place point with smaller starting point
+
+        Collections.sort(heights,(a,b)->(a[0]==b[0]) ? a[1]-b[1] : a[0]-b[0]);// TC->O(nlog n)
+
+        PriorityQueue<Integer> pq=new PriorityQueue<Integer>((a,b)->(b-a));
+
+        //seeding the Priority Queue
+        pq.add(0);
+        int prevMax=0;
+
+        for(int[] height:heights){ //O(n)
+
+            if(height[1]<0){
+                pq.add(-height[1]);
+            }
+            else{
+                pq.remove(height[1]); //O(log n)
+            }
+
+            int CurrentMax=pq.peek();
+            if(CurrentMax!=prevMax)
+            {
+                List<Integer> subResult=new ArrayList<>();
+                subResult.add(height[0]);
+                subResult.add(CurrentMax);
+
+                res.add(subResult);
+                prevMax=CurrentMax;
             }
         }
 
-        // Return the key coordinates
-        return Arrays.copyOfRange(res, 0, i);
+        return res;
+    }
+    //this will seperate the values of start point and end point with height
+    //example-->[1,2,3]-->[1,-3] & [2,3]-->here -(minus) is just for convention for starting point
+    private void transformBuilding(int[][] buildings,List<int[]> heights)
+    {
+        for(int[] building:buildings)
+        {
+            heights.add(new int[]{building[0],-building[2]});
+            heights.add(new int[]{building[1],building[2]});
+        }
+
+
+
     }
 
     public static void main(String[] args) {
-        Question5A obj = new Question5A() ;
         int[][] height = {{1,4,10},{2,5,15},{5,8,12},{9,11,1},{11,13,15}};
-        int[][] res = obj.getKeyCoordinates(height);
-        System.out.println(Arrays.deepToString(res));
+        Question5A solution = new Question5A();
+
+        List<List<Integer>> ans = solution.getSkyline(height);
+        System.out.println(ans);
+
     }
+
+
+
 }

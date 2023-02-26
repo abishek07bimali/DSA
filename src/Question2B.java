@@ -1,59 +1,88 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-public class Question2B {
-    private int[] parents;
-    private int[] depth;
-    private List<Integer>[] children;
-    private int[] subtreeSize;
-    private int[] serviceCenters;
-    private int n;
+import java.util.LinkedList;
+import java.util.Queue;
 
-    public int minimumServiceCenters(int n, List<Integer>[] children) {
-        this.n = n;
-        this.children = children;
-        parents = new int[n];
-        depth = new int[n];
-        subtreeSize = new int[n];
-        serviceCenters = new int[n];
-        Arrays.fill(parents, -1);
-        Arrays.fill(serviceCenters, -1);
-        dfs1(0, -1);
-        return dfs2(0, -1);
+/* 2.b) You are given an array of binary trees that represent different cities where a certain corporation
+has its branch office and the organization wishes to provide service by constructing a service center.
+Building service centers at any node, i.e., a city can give service to its directly connected cities where
+it can provide service to its parents, itself, and its immediate children. Returns the smallest number of
+service centers required by the corporation to provide service to all connected cities. Note that: the root
+node represents the head office and other connected nodes represent the branch office connected to the head
+office maintaining some kind of hierarchy.
+
+Input: tree= {0,0, null, 0, null, 0, null, null, 0}
+Output: 2
+Explanation: construction of two service centers denoted by black markk will be enough to provide service
+to all cities.
+*/
+class TreeNode{
+    TreeNode left;
+    TreeNode right;
+    int data;
+
+    TreeNode(int data){
+        this.data=data;
+        this.left=this.right=null;
+    }
+    TreeNode(){
+
     }
 
-    private void dfs1(int node, int parent) {
-        parents[node] = parent;
-        depth[node] = parent == -1 ? 0 : depth[parent] + 1;
-        subtreeSize[node] = 1;
-        for (int child : children[node]) {
-            dfs1(child, node);
-            subtreeSize[node] += subtreeSize[child];
+    public TreeNode addToTree(Object[] input) {
+        if (input == null || input.length == 0) {
+            return null;
         }
+
+        TreeNode root = new TreeNode((int) input[0]);
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+
+        for (int i = 1; i < input.length; i += 2) {
+            TreeNode curr = queue.poll();
+            if (input[i] != null) {
+                curr.left = new TreeNode((int) input[i]);
+                queue.offer(curr.left);
+            }
+            if (i+1 < input.length && input[i+1] != null) {
+                curr.right = new TreeNode((int) input[i+1]);
+                queue.offer(curr.right);
+            }
+        }
+
+        return root;
     }
 
-    private int dfs2(int node, int parent) {
-        if (serviceCenters[node] != -1) return serviceCenters[node];
-        int count = 0;
-        for (int child : children[node]) {
-            count += dfs2(child, node);
+
+}
+
+
+
+class ConstructionServiceCenter{
+    int res = 0;
+    public int minCameraCover(TreeNode root) {
+
+        return (dfs(root) < 1 ? 1 : 0) + res;
+    }
+
+    public int dfs(TreeNode root) {
+
+        if (root == null) return 2;
+        int left = dfs(root.left), right = dfs(root.right);
+        if (left == 0 || right == 0) {
+            res++;
+            return 1;
         }
-        int option1 = count;
-        int option2 = n - subtreeSize[node];
-        serviceCenters[node] = Math.min(option1, option2) + 1;
-        return serviceCenters[node];
+        return left == 1 || right == 1 ? 2 : 0;
     }
 
     public static void main(String[] args) {
-        List<Integer>[] children = new List[5];
-        for (int i = 0; i < 5; i++) {
-            children[i] = new ArrayList<>();
-        }
-        children[0].add(1);
-        children[0].add(2);
-        children[0].add(3);
-        Question2B sc = new Question2B();
-        System.out.println(sc.minimumServiceCenters(5, children));
+        Object[] tree= {0,0, null, 0, null, 0, null, null, 0 , 0 ,null,0};
+        TreeNode root = new TreeNode().addToTree(tree);
+        int ans = new ConstructionServiceCenter().minCameraCover(root);
+        System.out.println(ans);
+
+
     }
+
 }
+
